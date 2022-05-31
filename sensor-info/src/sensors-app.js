@@ -17,6 +17,8 @@ class SensorsApp extends LitElement {
   constructor() {
     super();
     this.sensorDataModel = [];
+
+    this.timestamp = {};
   }
 
   openAddSensorDialog() {
@@ -43,6 +45,7 @@ class SensorsApp extends LitElement {
       };
     }
 
+    this.timestamp[this.selectedSensor.value] = 0;
     switch (this.selectedSensor.value) {
     case "Ambient light":
       sensorConstructor = window.AmbientLightSensor;
@@ -84,6 +87,8 @@ class SensorsApp extends LitElement {
 
     let sensor = new sensorConstructor(options || {});
 
+  
+
     sensor.name = this.selectedSensor.value;
     sensor.frequency = (options && options.hasOwnProperty('frequency')) ? `${options.frequency} Hz` : 'default';
     sensor.id = this.sensorDataModel.length;
@@ -101,6 +106,12 @@ class SensorsApp extends LitElement {
         let propertyName = properties[property];
         if (propertyName == 'timestamp') {
           sensor.readingTimestamp = `timestamp: ${round(sensor.timestamp, 3)}`;
+
+          let prevTimestamp = this.timestamp[sensor.name];
+
+          console.log('name: '+ sensor.name +' frequency: ' + 1000/(sensor.readingTimestamp - prevTimestamp));
+          this.timestamp[sensor.name] = sensor.readingTimestamp;
+
         } else if (propertyName in sensor) {
           if (propertyName == 'quaternion') {
             sensor.readingValue0 = `${propertyName}.X: ${round(sensor[propertyName][0], 3)}`;
@@ -281,3 +292,4 @@ class SensorsApp extends LitElement {
 }
 
 customElements.define('sensors-app', SensorsApp);
+
